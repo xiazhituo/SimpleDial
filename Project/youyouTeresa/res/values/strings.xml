@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">龙猪天鹅屁</string>
+    <string name="hello_world">不吃饭会饿噢!</string>
+    <string name="action_settings">设置</string>
+    <string name="button_send"></string>
+    <string name="about_this_app">关于本应用</string>
+    <string name="title_activity_add_new_contact">添加联系人</string>
+
+</resources>
