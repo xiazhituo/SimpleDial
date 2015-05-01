@@ -17,7 +17,7 @@
         android:layout_height="0dip"
         android:layout_width="fill_parent"
         android:layout_weight="1"
-        android:onClick="chooseRes"
+        android:onClick="makeCall"
         android:scaleType="fitCenter"
         android:contentDescription="@string/button_send"
         android:src="@drawable/ic_action_call"

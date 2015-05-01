@@ -27,6 +27,7 @@ public class MainActivity extends Activity {
 	public ViewPager viewPager;
 	MyPagerAdapter myPagerAdapter;
 	String[] mPhoneNumber = {"13524290043", "13916520460"};
+	public static String PACKAGE_NAME;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +40,7 @@ public class MainActivity extends Activity {
 		viewPager = (ViewPager) findViewById(R.id.myviewpager);
 		myPagerAdapter = new MyPagerAdapter();
 		viewPager.setAdapter(myPagerAdapter);
+		PACKAGE_NAME = getApplicationContext().getPackageName();
 	}
 	
     @Override
@@ -61,21 +63,17 @@ public class MainActivity extends Activity {
             return true;
         }else if (id == R.id.action_search){
         	Intent intent = new Intent(this, AddNewContact.class);
-            startActivity(intent);
+            //startActivity(intent);
+            startActivityForResult(intent, 1000);
         }
         
         
         return super.onOptionsItemSelected(item);
     }
 	
-    public void chooseRes(View view) {
+    public void makeCall(View view) {
     	int index = viewPager.getCurrentItem();
-    	/*Toast.makeText(MainActivity.this,
-				"mImageIndex " + viewPager.getCurrentItem() + " clicked", Toast.LENGTH_LONG)
-				.show();*/
     	
-    	
-    	 
         String mobile = mPhoneNumber[index];  
         Intent intent = new Intent("android.intent.action.CALL", Uri  
                 .parse("tel:" + mobile));             
@@ -83,6 +81,23 @@ public class MainActivity extends Activity {
 
     }
     
+    @Override
+    protected void onActivityResult(int requsetCode, int resultCode, Intent data){
+    	super.onActivityResult(requsetCode, resultCode, data);
+    	if(requsetCode == 1000 && resultCode == 1001){
+    		String resultValue = data.getStringExtra("uri");
+    		Uri newImageUri = Uri.parse(resultValue);
+    		View newView = viewPager.findViewWithTag("viewTag" + viewPager.getCurrentItem());
+    		//if (newView instanceof ImageView){
+    			((ImageView) newView).setImageURI(newImageUri);
+    		//}
+    		
+    		Toast.makeText(MainActivity.this,
+					resultValue, Toast.LENGTH_LONG)
+					.show();
+    	}
+    		
+    }
     
 
 	public class MyPagerAdapter extends PagerAdapter {
@@ -120,6 +135,10 @@ public class MainActivity extends Activity {
 			layout.addView(dispView);
 			imageindex = position;
 			
+			//Add Tag For View
+			String key = "viewTag" + position;
+			dispView.setTag(key);
+			
 			final int page = position;
 			layout.setOnClickListener(new OnClickListener() {
 
@@ -128,9 +147,6 @@ public class MainActivity extends Activity {
 					Toast.makeText(MainActivity.this,
 							"mImageIndex " + page + " clicked", Toast.LENGTH_LONG)
 							.show();
-					/*Toast.makeText(MainActivity.this,
-					"¡˙÷Ì’Êœ„£°", Toast.LENGTH_LONG)
-					.show();*/
 				}
 			});
 
@@ -146,8 +162,9 @@ public class MainActivity extends Activity {
 	    public View getDisplayView(int isImage, int pos){
 	    	View view;
 	    	if(1 == isImage){
-				ImageView imageView = new ImageView(MainActivity.this);
-				imageView.setImageResource(res[pos]);
+				Uri imgUri = Uri.parse("android.resource://" + MainActivity.PACKAGE_NAME+"/" + res[pos]);
+	    		ImageView imageView = new ImageView(MainActivity.this);
+				imageView.setImageURI(imgUri);
 				imageView.setColorFilter(Color.argb(25, 33, 49, 87));
 				imageView.setScaleType(ScaleType.FIT_XY);
 	    		view = imageView;
