@@ -6,6 +6,7 @@ import android.R;
 import android.net.Uri;
 
 public class YouYouContack {
+	int mId;
 	String mName;
 	String mPhoneNum;
 	String mSymbolString;
@@ -13,6 +14,8 @@ public class YouYouContack {
 	String mImageUri;
 	
 	public YouYouContack(String name, String phoneNum){
+		java.util.Random rand = new java.util.Random();
+		mId = rand.nextInt();
 		mName = name;
 		mPhoneNum = phoneNum;
 		mSymbolString = "0";
@@ -56,5 +59,13 @@ public class YouYouContack {
 	
 	public String getSymbol(){
 		return this.mSymbolString;
+	}
+	
+	public int getIsHaveImage(){
+		return this.isHaveImage;
+	}
+	
+	public int getId(){
+		return this.mId;
 	}
 }

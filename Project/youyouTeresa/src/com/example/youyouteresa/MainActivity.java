@@ -1,5 +1,8 @@
 package com.example.youyouteresa;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -22,12 +25,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import youyoucontact.YouYouContack;
+
 public class MainActivity extends Activity {
 
 	public ViewPager viewPager;
 	MyPagerAdapter myPagerAdapter;
 	String[] mPhoneNumber = {"13524290043", "13916520460"};
 	public static String PACKAGE_NAME;
+	
+	public static List<YouYouContack> mContactList;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +42,15 @@ public class MainActivity extends Activity {
 		//requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				             WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		
+		mContactList = new ArrayList<YouYouContack>();
+		
+		YouYouContack frog = new YouYouContack("frog", "13524290043");
+		YouYouContack swan = new YouYouContack("swan", "13916520460");
+		frog.setSymbol("F");
+		swan.setSymbol("S");
+		mContactList.add(frog);
+		mContactList.add(swan);
 		
 		setContentView(R.layout.activity_main);
 		viewPager = (ViewPager) findViewById(R.id.myviewpager);
@@ -107,10 +123,12 @@ public class MainActivity extends Activity {
 
 		int[] res = { R.drawable.longzhu, R.drawable.swan};
 		int[] backgroundcolor = { 0xA1887F, 0x776655};
+		private YouYouContack contactForView;
 
 		@Override
 		public int getCount() {
-			return NumberOfPages;
+			//return NumberOfPages;
+			return MainActivity.mContactList.size();
 		}
 		
 		@Override
@@ -161,8 +179,11 @@ public class MainActivity extends Activity {
 		
 	    public View getDisplayView(int isImage, int pos){
 	    	View view;
-	    	if(1 == isImage){
-				Uri imgUri = Uri.parse("android.resource://" + MainActivity.PACKAGE_NAME+"/" + res[pos]);
+	    	contactForView = (YouYouContack)MainActivity.mContactList.get(pos);
+	    	
+	    	if(1 == contactForView.getIsHaveImage()){
+				//Uri imgUri = Uri.parse("android.resource://" + MainActivity.PACKAGE_NAME+"/" + res[pos]);
+	    		Uri imgUri = Uri.parse(contactForView.getImageUri());
 	    		ImageView imageView = new ImageView(MainActivity.this);
 				imageView.setImageURI(imgUri);
 				imageView.setColorFilter(Color.argb(25, 33, 49, 87));
@@ -173,7 +194,8 @@ public class MainActivity extends Activity {
 				textView.setTextColor(Color.BLACK);
 				textView.setTextSize(120);
 				textView.setTypeface(Typeface.DEFAULT_BOLD);
-				textView.setText(String.valueOf(pos));
+				//textView.setText(String.valueOf(pos));
+				textView.setText(contactForView.getSymbol());
 				textView.setGravity(Gravity.CENTER);
 				view = textView;
 	    	}
