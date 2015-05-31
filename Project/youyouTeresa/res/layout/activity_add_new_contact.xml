@@ -1,27 +1,54 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:layout_width="fill_parent"
     android:layout_height="match_parent"
-    tools:context="${relativePackage}.${activityClass}" >
-    <Button  
-        android:layout_width="wrap_content"  
-        android:layout_height="wrap_content"  
-        android:onClick="load"  
-        android:text="获取图库图片" />  
-  
-    <ImageView  
-        android:id="@+id/iv_image"  
-        android:layout_width="wrap_content"  
-        android:layout_height="wrap_content" />
+    android:orientation="vertical"
+    tools:context="com.example.androidviewpagerapp.AddNewContack" >
+
+    <ImageView
+        android:id="@+id/iv_image"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="5"/>
+    
+    <EditText 
+        android:id="@+id/add_name" 
+        android:layout_width="fill_parent" 
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:inputType="text"
+        android:hint="@string/add_new_contact_name"  />
+    
+    <EditText 
+        android:id="@+id/add_symbol" 
+        android:layout_width="fill_parent" 
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:inputType="number"
+        android:hint="@string/add_new_contact_symbol" />
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/sel_image"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="25dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:onClick="load"
+        android:text="选择照片" />
+    
+    <EditText 
+        android:id="@+id/add_phonenum" 
+        android:layout_width="fill_parent" 
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:inputType="phone"
+        android:hint="@string/add_new_contact_phone" />
+    
+    <Button
+        android:id="@+id/returnToMain"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:onClick="returnToMain"
-        android:text="Button" />
+        android:text="完成" />
 
-</RelativeLayout>
+</LinearLayout>

@@ -1,16 +1,20 @@
 package com.example.youyouteresa;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,7 +35,6 @@ public class MainActivity extends Activity {
 
 	public ViewPager viewPager;
 	MyPagerAdapter myPagerAdapter;
-	String[] mPhoneNumber = {"13524290043", "13916520460"};
 	public static String PACKAGE_NAME;
 	
 	public static List<YouYouContack> mContactList;
@@ -44,19 +47,45 @@ public class MainActivity extends Activity {
 				             WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		
 		mContactList = new ArrayList<YouYouContack>();
-		
-		YouYouContack frog = new YouYouContack("frog", "13524290043");
-		YouYouContack swan = new YouYouContack("swan", "13916520460");
-		frog.setSymbol("F");
-		swan.setSymbol("S");
-		mContactList.add(frog);
-		mContactList.add(swan);
-		
+				
+		dbInitial();
 		setContentView(R.layout.activity_main);
 		viewPager = (ViewPager) findViewById(R.id.myviewpager);
 		myPagerAdapter = new MyPagerAdapter();
 		viewPager.setAdapter(myPagerAdapter);
 		PACKAGE_NAME = getApplicationContext().getPackageName();
+		
+		
+	}
+	
+	protected void onResume() {
+		super.onResume();
+		onCreate(null);
+	};
+	
+	public void dbInitial(){
+		SQLiteDatabase db = openOrCreateDatabase("contact.db", 0, null);
+		
+		db.execSQL("CREATE TABLE IF NOT EXISTS People(Id INTEGER PRIMARY KEY, Name TEXT, PhoneNum TEXT, Symbol TEXT, ImageFlag INT, ImageUri TEXT)");
+		Cursor cur = db.rawQuery("SELECT * FROM People", null);
+		if (cur.getCount() > 0){
+		}else{
+			db.execSQL("INSERT INTO People VALUES (1, 'swan', '13524290043', 'X', 0, 'NULL')");
+		};
+		cur = db.rawQuery("SELECT * FROM People", null);
+		
+		if(cur != null){
+			while (cur.moveToNext()){
+				YouYouContack people = new YouYouContack(cur.getString(cur.getColumnIndex("Name")), cur.getString(cur.getColumnIndex("PhoneNum")));
+				people.setSymbol(cur.getString(cur.getColumnIndex("Symbol")));
+				people.setImageUri(cur.getString(cur.getColumnIndex("ImageUri")), cur.getInt(cur.getColumnIndex("ImageFlag")));
+				MainActivity.mContactList.add(people);
+			}
+		}
+		
+		cur.close();
+		db.close();
+		return;
 	}
 	
     @Override
@@ -74,12 +103,11 @@ public class MainActivity extends Activity {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
         	Toast.makeText(MainActivity.this,
-    				"Seting!", Toast.LENGTH_LONG)
+    				"Setting!", Toast.LENGTH_LONG)
     				.show();
             return true;
-        }else if (id == R.id.action_search){
+        }else if (id == R.id.action_add_new){
         	Intent intent = new Intent(this, AddNewContact.class);
-            //startActivity(intent);
             startActivityForResult(intent, 1000);
         }
         
@@ -90,7 +118,9 @@ public class MainActivity extends Activity {
     public void makeCall(View view) {
     	int index = viewPager.getCurrentItem();
     	
-        String mobile = mPhoneNumber[index];  
+    	YouYouContack people = (YouYouContack)MainActivity.mContactList.get(index);
+    	
+        String mobile = people.getPhoneNum();  
         Intent intent = new Intent("android.intent.action.CALL", Uri  
                 .parse("tel:" + mobile));             
         startActivity(intent);
@@ -101,28 +131,31 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int requsetCode, int resultCode, Intent data){
     	super.onActivityResult(requsetCode, resultCode, data);
     	if(requsetCode == 1000 && resultCode == 1001){
-    		String resultValue = data.getStringExtra("uri");
-    		Uri newImageUri = Uri.parse(resultValue);
-    		View newView = viewPager.findViewWithTag("viewTag" + viewPager.getCurrentItem());
-    		//if (newView instanceof ImageView){
-    			((ImageView) newView).setImageURI(newImageUri);
-    		//}
+    		String imageUriStr = data.getStringExtra("uri"); 		
+    		String new_name = data.getStringExtra("name");
+    		String new_symbol = data.getStringExtra("symbol");
+    		String new_phonenum = data.getStringExtra("phonenum");
+    		int image_flag = 1;
     		
-    		Toast.makeText(MainActivity.this,
-					resultValue, Toast.LENGTH_LONG)
-					.show();
+    		if (imageUriStr.equals("NULL")){
+    			image_flag = 0;
+    		}
+    				
+    		SQLiteDatabase db = openOrCreateDatabase("contact.db", 0, null);
+    		Cursor cur = db.rawQuery("SELECT * FROM People", null);
+    		int id = cur.getCount() + 1;
+    		cur.close();
+    		
+    		String insert_cmd = String.format("INSERT INTO People VALUES (%d, '%s', '%s', '%s', %d, '%s')", id, new_name,
+    				new_phonenum, new_symbol, image_flag, imageUriStr);
+    		db.execSQL(insert_cmd);
+    		db.close();
     	}
     		
     }
     
 
 	public class MyPagerAdapter extends PagerAdapter {
-
-		int NumberOfPages = 2;
-		public int imageindex;
-
-		int[] res = { R.drawable.longzhu, R.drawable.swan};
-		int[] backgroundcolor = { 0xA1887F, 0x776655};
 		private YouYouContack contactForView;
 
 		@Override
@@ -138,8 +171,7 @@ public class MainActivity extends Activity {
 
 		@Override
 		public Object instantiateItem(ViewGroup container, int position) {			
-			View dispView = getDisplayView(1, position);
-			
+			View dispView = getDisplayView(position);			
 			LayoutParams imageParams = new LayoutParams(
 					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 			dispView.setLayoutParams(imageParams);
@@ -148,23 +180,18 @@ public class MainActivity extends Activity {
 			layout.setOrientation(LinearLayout.VERTICAL);
 			LayoutParams layoutParams = new LayoutParams(
 					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-			layout.setBackgroundColor(backgroundcolor[position]);
 			layout.setLayoutParams(layoutParams);
 			layout.addView(dispView);
-			imageindex = position;
 			
 			//Add Tag For View
 			String key = "viewTag" + position;
 			dispView.setTag(key);
 			
-			final int page = position;
 			layout.setOnClickListener(new OnClickListener() {
 
 				@Override
 				public void onClick(View v) {
-					Toast.makeText(MainActivity.this,
-							"mImageIndex " + page + " clicked", Toast.LENGTH_LONG)
-							.show();
+						
 				}
 			});
 
@@ -177,26 +204,26 @@ public class MainActivity extends Activity {
 			container.removeView((LinearLayout) object);
 		}
 		
-	    public View getDisplayView(int isImage, int pos){
+	    public View getDisplayView(int pos){
 	    	View view;
 	    	contactForView = (YouYouContack)MainActivity.mContactList.get(pos);
 	    	
 	    	if(1 == contactForView.getIsHaveImage()){
-				//Uri imgUri = Uri.parse("android.resource://" + MainActivity.PACKAGE_NAME+"/" + res[pos]);
 	    		Uri imgUri = Uri.parse(contactForView.getImageUri());
+	    		Log.d("Main_getDisplayView", contactForView.getImageUri());
 	    		ImageView imageView = new ImageView(MainActivity.this);
 				imageView.setImageURI(imgUri);
-				imageView.setColorFilter(Color.argb(25, 33, 49, 87));
-				imageView.setScaleType(ScaleType.FIT_XY);
+				imageView.setBackgroundColor(Color.WHITE);
+				imageView.setScaleType(ScaleType.FIT_CENTER);
 	    		view = imageView;
 	    	}else{
 	    		TextView textView = new TextView(MainActivity.this);
 				textView.setTextColor(Color.BLACK);
 				textView.setTextSize(120);
 				textView.setTypeface(Typeface.DEFAULT_BOLD);
-				//textView.setText(String.valueOf(pos));
 				textView.setText(contactForView.getSymbol());
 				textView.setGravity(Gravity.CENTER);
+				textView.setBackgroundColor(Color.WHITE);
 				view = textView;
 	    	}
 	    	

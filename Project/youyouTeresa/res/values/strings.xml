@@ -7,5 +7,8 @@
     <string name="button_send"></string>
     <string name="about_this_app">关于本应用</string>
     <string name="title_activity_add_new_contact">添加联系人</string>
-
+	<string name="add_new_contact_name">姓名</string>
+	<string name="add_new_contact_symbol">符号</string>
+	<string name="add_new_contact_phone">电话号码</string>
+	
 </resources>

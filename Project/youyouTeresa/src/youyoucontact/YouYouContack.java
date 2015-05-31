@@ -2,7 +2,6 @@ package youyoucontact;
 
 import com.example.youyouteresa.MainActivity;
 
-import android.R;
 import android.net.Uri;
 
 public class YouYouContack {
@@ -20,7 +19,7 @@ public class YouYouContack {
 		mPhoneNum = phoneNum;
 		mSymbolString = "0";
 		isHaveImage = 0;
-		Uri imgUri = Uri.parse("android.resource://" + MainActivity.PACKAGE_NAME+"/" + R.drawable.screen_background_light);
+		Uri imgUri = Uri.parse("android.resource://" + MainActivity.PACKAGE_NAME+"/" + android.R.drawable.screen_background_light);
 		mImageUri = imgUri.toString();
 	}
 	
@@ -39,9 +38,9 @@ public class YouYouContack {
 		return;
 	}
 	
-	public void setImageUri(String imageUri){
+	public void setImageUri(String imageUri, int imageFlag){
 		this.mImageUri = imageUri;
-		this.isHaveImage = 1;
+		this.isHaveImage = imageFlag;
 		return;
 	}
 	

@@ -21,7 +21,7 @@
         android:scaleType="fitCenter"
         android:contentDescription="@string/button_send"
         android:src="@drawable/ic_action_call"
-        android:background = "#48B36D"
+        android:background = "#FFFFFF"
         style="?android:attr/borderlessButtonStyle" />
 
 </LinearLayout>
